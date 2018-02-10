@@ -46,4 +46,3 @@ nuget.exe
 packages/
 project.lock.json
 PublishProfiles/
-**/wwwroot/lib/

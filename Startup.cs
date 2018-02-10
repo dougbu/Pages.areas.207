@@ -1,17 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
-using Pages.areas._207.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Pages.areas._207.Data;
 
 namespace Pages.areas._207
 {
@@ -27,21 +22,29 @@ namespace Pages.areas._207
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<CookiePolicyOptions>(options =>
-            {
+            services
+                .AddSingleton<IPageApplicationModelProvider, FullNamePageApplicationModelProvider>()
+                .AddSingleton<NoFallbackPageFilter>()
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-            });
+                .Configure<CookiePolicyOptions>(options => options.CheckConsentNeeded = context => true);
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<ApplicationDbContext>(
+                options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddIdentity<IdentityUser, IdentityRole>(options => options.Stores.MaxLengthForKeys = 128)
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultUI()
                 .AddDefaultTokenProviders();
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services
+                .AddMvc(options => options.Filters.AddService<NoFallbackPageFilter>())
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_0)
+                .AddRazorPagesOptions(options =>
+                {
+                    options.AllowAreas = false;
+                    options.Conventions
+                        .AddAreaPageRoute(areaName: "MyArea", pageName: "/Contact", route: "/MyContact")
+                        .AuthorizeAreaPage(areaName: "MyArea", pageName: "/Contact");
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,0 +1,77 @@
+﻿@using Pages.areas._207.Controllers
+@model VController
+@{
+    ViewData["Title"] = "Home view";
+}
+
+<div class="row">
+    <form method="post">
+        <div class="form-group">
+            <label asp-for="FirstName" class="col-md-2 control-label"></label>
+            <div class="col-md-10" style="min-height: 34px;">
+                <input asp-for="FirstName" class="form-control" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="LastName" class="col-md-2 control-label"></label>
+            <div class="col-md-10" style="min-height: 34px;">
+                <input asp-for="LastName" class="form-control" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="ReadOnlyName" class="col-md-2 control-label"></label>
+            <div class="col-md-10" style="min-height: 34px;">
+                <input asp-for="ReadOnlyName" class="form-control" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="FullName" class="col-md-2 control-label" for="Name"></label>
+            <div class="col-md-10" style="min-height: 34px;">
+                <input asp-for="FullName" class="form-control" name="Name" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Host" class="col-md-2 control-label"></label>
+            <div class="col-md-10" style="min-height: 34px;">
+                <input asp-for="Host" class="form-control" />
+            </div>
+        </div>
+
+        <input type="submit" value="Save" />
+    </form>
+</div>
+
+<div class="row">
+    <form method="post" asp-action="@nameof(VController.Ints)">
+        @{
+            var i = 0;
+            for (; i < (Model.Integers?.Length ?? 0); i++)
+            {
+                <div class="form-group">
+                    <label asp-for="Integers[i]" class="col-md-2 control-label" for="ints_@(i)_"></label>
+                    <div class="col-md-10" style="min-height: 34px;">
+                        <input asp-for="Integers[i]" class="form-control" id="ints_@(i)_" name="ints[@i]" />
+                    </div>
+                </div>
+            }
+            <div class="form-group">
+                <label class="col-md-2 control-label" for="ints_@(i)_">Integers[@i]</label>
+                <div class="col-md-10" style="min-height: 34px;">
+                    <input class="form-control" id="ints_@(i)_" name="ints[@i]" value="@(i + 1)" />
+                </div>
+            </div>
+        }
+
+        <input type="submit" value="Save Integers" />
+    </form>
+</div>
+
+<div class="row">
+    <form method="post" asp-action="@nameof(VController.Ints)">
+        <input type="submit" value="Save nothing" />
+    </form>
+</div>
