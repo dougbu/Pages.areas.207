@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +24,7 @@ namespace Pages.areas._207
         public void ConfigureServices(IServiceCollection services)
         {
             services
+                .AddSingleton<IModelMetadataProvider, LegacyModelMetadataProvider>()
                 .AddSingleton<IPageApplicationModelProvider, FullNamePageApplicationModelProvider>()
                 .AddSingleton<NoFallbackPageFilter>()
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
