@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Pages.areas._207.Pages
@@ -7,9 +8,37 @@ namespace Pages.areas._207.Pages
     [BindProperty]
     public class IndexModel : PageModel
     {
-        public int[] Integers { get; private set; } = new int[] { 1, 2, 3, 4 };
+        private string _realHost;
+        private bool _isRealHostSet;
 
-        public string Host { get; private set; }
+        [BindProperty]
+        [MinLength(6)]
+        [Required]
+        public int[] Integers { get; set; } = new int[] { 1, 2, 3, 4 };
+
+        [FromHeader(Name = "Host")]
+        public string Host { get; set; }
+
+        [BindProperty]
+        [MinLength(6, ErrorMessage = "No host is that short!")]
+        [Required]
+        public string RealHost
+        {
+            get
+            {
+                if (!_isRealHostSet)
+                {
+                    return Host;
+                }
+
+                return _realHost;
+            }
+            set
+            {
+                _realHost = value;
+                _isRealHostSet = true;
+            }
+        }
 
         [ModelBinder(BinderType = typeof(RandomModelBinder))]
         public string FirstName { get; set; } = "John";
@@ -17,48 +46,36 @@ namespace Pages.areas._207.Pages
         [BindProperty(SupportsGet = true)]
         public string LastName { get; set; } = "Smith";
 
+        [BindProperty]
         public string ReadOnlyName => $"{FirstName} {LastName}";
 
         [FromForm(Name = "Name")]
         public string FullName { get; set; } = "Gene Kelly";
 
         [BindProperty]
+        [BindRequired] // ignored !!!
+        [Required] // Ignored !!!
         public string Required { get; set; }
 
-        public IActionResult OnGet([FromHeader, Required] string host)
+        public IActionResult OnGet()
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            Host = host;
             ModelState.Clear();
 
             return Page();
         }
 
-        public IActionResult OnPost([MinLength(6, ErrorMessage = "No host is that short!")] string host)
+        public IActionResult OnPost()
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            Host = host;
-            ModelState.Clear();
-
-            return Page();
-        }
-
-        public IActionResult OnPostIntegral([MinLength(6), Required] int[] ints)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            Integers = ints;
             ModelState.Clear();
 
             return Page();

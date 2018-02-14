@@ -8,9 +8,37 @@ namespace Pages.areas._207.Controllers
     [BindProperty] // ignored !!!
     public class VController : Controller
     {
-        public int[] Integers { get; set; } = new int[] { 1, 2, 3, 4 };
+        private string _realHost;
+        private bool _isRealHostSet;
 
+        [BindProperty]
+        [MinLength(6)]
+        [Required]
+        public int[] Integers { get; set; } = new int[] { 1, 2, 3, 4, 5, 6 };
+
+        [FromHeader(Name = "Host")]
         public string Host { get; set; }
+
+        [BindProperty]
+        [MinLength(6, ErrorMessage = "No host is that short!")]
+        [Required]
+        public string RealHost
+        {
+            get
+            {
+                if (!_isRealHostSet)
+                {
+                    return Host;
+                }
+
+                return _realHost;
+            }
+            set
+            {
+                _realHost = value;
+                _isRealHostSet = true;
+            }
+        }
 
         [ModelBinder(BinderType = typeof(RandomModelBinder))]
         public string FirstName { get; set; } = "John";
@@ -30,42 +58,26 @@ namespace Pages.areas._207.Controllers
         public string Required { get; set; }
 
         [Route("/View")]
-        public IActionResult Index([FromHeader, Required] string host)
+        public IActionResult Index()
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            Host = host;
             ModelState.Clear();
 
             return View(model: this);
         }
 
         [HttpPost("/View")]
-        public IActionResult PostIndex([MinLength(6, ErrorMessage = "No host is that short!")] string host)
+        public IActionResult PostIndex()
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            Host = host;
-            ModelState.Clear();
-
-            return View(viewName: "Index", model: this);
-        }
-
-        [HttpPost("/Ints")]
-        public IActionResult Ints([MinLength(6), Required] int[] ints)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            Integers = ints;
             ModelState.Clear();
 
             return View(viewName: "Index", model: this);
