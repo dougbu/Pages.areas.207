@@ -12,6 +12,7 @@ namespace Pages.areas._207
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .UseAzureAppServices()
                 .UseStartup<Startup>();
     }
 }
