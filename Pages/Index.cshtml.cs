@@ -57,7 +57,7 @@ namespace Pages.areas._207.Pages
         [Required] // Ignored !!!
         public string Required { get; set; }
 
-        public IActionResult OnGet()
+        public IActionResult OnGet([FromHeader, Required] string hosta)
         {
             if (!ModelState.IsValid)
             {

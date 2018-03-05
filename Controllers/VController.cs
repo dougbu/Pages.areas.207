@@ -1,12 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Logging;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 namespace Pages.areas._207.Controllers
 {
     [BindProperty] // ignored !!!
-    public class VController : Controller
+    [ApiExplorerSettings(IgnoreApi = false)]
+    public class VController : ControllerBase
     {
         private string _realHost;
         private bool _isRealHostSet;
@@ -58,8 +61,35 @@ namespace Pages.areas._207.Controllers
         public string Required { get; set; }
 
         [Route("/View")]
-        public IActionResult Index()
+        public IActionResult Index(
+            [Required] string hosta,
+            [FromServices] IApiDescriptionGroupCollectionProvider apiDescriptionProvider,
+            [FromServices] ILoggerFactory loggerFactory)
         {
+            var logger = loggerFactory.CreateLogger<VController>();
+            var groups = apiDescriptionProvider.ApiDescriptionGroups;
+            logger.LogInformation(0, "Version: {Version}", groups.Version);
+            var i = 0;
+            foreach (var group in groups.Items)
+            {
+                logger.LogInformation(1, "Group {GroupIndex}: {GroupName}", i, group.GroupName);
+                var j = 0;
+                foreach (var item in group.Items)
+                {
+                    logger.LogInformation(2, "API Description {GroupIndex} / {APIIndex}: {APIName}", i, j, item.ActionDescriptor.DisplayName);
+                    var k = 0;
+                    foreach (var parameter in item.ParameterDescriptions)
+                    {
+                        logger.LogInformation(3, "Parameter {GroupIndex} / {APIIndex} / {ParameterIndex}: {ParameterName}, {IsRequired}", i, j, k, parameter.Name, parameter.ModelMetadata.IsRequired);
+                        k++;
+                    }
+
+                    j++;
+                }
+
+                i++;
+            }
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -67,7 +97,7 @@ namespace Pages.areas._207.Controllers
 
             ModelState.Clear();
 
-            return View(model: this);
+            return Ok();
         }
 
         [HttpPost("/View")]
@@ -80,7 +110,7 @@ namespace Pages.areas._207.Controllers
 
             ModelState.Clear();
 
-            return View(viewName: "Index", model: this);
+            return Ok();
         }
     }
 }
