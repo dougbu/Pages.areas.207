@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 namespace Pages.areas._207.Controllers
 {
+    [ApiController]
     [BindProperty] // ignored !!!
     [ApiExplorerSettings(IgnoreApi = false)]
     public class VController : ControllerBase
@@ -110,6 +111,12 @@ namespace Pages.areas._207.Controllers
 
             ModelState.Clear();
 
+            return Ok();
+        }
+
+        [HttpGet("/string")]
+        public IActionResult StringLength([Required, StringLength(2, ErrorMessage = "Go away too-tall.")] string value)
+        {
             return Ok();
         }
     }
